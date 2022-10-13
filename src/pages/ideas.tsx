@@ -1,12 +1,12 @@
 import React from "react";
 import { NextPage } from "next";
 import Head from "next/head";
-import { Header } from "../components/Header";
-import styles from "../../styles/Home.module.css";
-import classes from "../../styles/Ideas.module.css";
+import { Header } from "src/components/Header";
+import styles from "styles/Home.module.css";
+import classes from "styles/Ideas.module.css";
 
 import { ethers } from "ethers";
-import abi from "../../utils/VotePortal.json";
+import abi from "utils/VotePortal.json";
 import Image from "next/image";
 import Link from "next/link";
 

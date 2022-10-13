@@ -2,15 +2,15 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
-import styles from "../../styles/Home.module.css";
+import styles from "styles/Home.module.css";
 import React from "react";
 
-import classes from "../../styles/Index.module.css";
-import { Header } from "../components/Header";
+import classes from "styles/Index.module.css";
+import { Header } from "src/components/Header";
 
 // import { ethers } from "ethers";
 import { ethers } from "ethers";
-import abi from "../../utils/VotePortal.json";
+import abi from "utils/VotePortal.json";
 
 import { Web3Storage } from "web3.storage";
 
