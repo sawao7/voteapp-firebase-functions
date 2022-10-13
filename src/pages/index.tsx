@@ -3,7 +3,6 @@ import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "../../styles/Home.module.css";
-import { About } from "./about";
 import React from "react";
 
 import classes from "../../styles/Index.module.css";
@@ -21,10 +20,10 @@ const Home: NextPage = () => {
 	const contractAddress = "0x40C45a6b7dc2562Aa1cC6e1D0Bb0a38254746e0a";
 	const contractABI = abi.abi;
 
-	const API_KEY = process.env.NEXT_PUBLIC_PRIVATE_WEBSTORAGE_KEY;
+	const API_KEY:any = process.env.NEXT_PUBLIC_PRIVATE_WEBSTORAGE_KEY;
 
 	const checkIfWalletIsConnected = async () => {
-		const { ethereum } = window;
+		const { ethereum } = window as any;
 		if (!ethereum) {
 			console.log("Make sure you have MetaMask!");
 			return;
@@ -45,7 +44,7 @@ const Home: NextPage = () => {
 
 	const connectWallet = async () => {
 		try {
-			const { ethereum } = window;
+			const { ethereum } = window as any;
 			if (!ethereum) {
 				alert("Get MetaMask!");
 				return;
@@ -72,12 +71,12 @@ const Home: NextPage = () => {
 
 	// アイデアの名前を記録する関数
 	const [ideaName, setIdeaName] = React.useState("");
-	const getIdeaName = (e) => {
+	const getIdeaName = (e:any) => {
 		setIdeaName(e.target.value);
 	};
 
 	// ImageをCIDに変える関数
-	const imageToCid = async (e) => {
+	const imageToCid = async (e:any) => {
 		const client = new Web3Storage({
 			token: API_KEY,
 		});
@@ -88,7 +87,7 @@ const Home: NextPage = () => {
 			name: ideaName,
 			maxRetries: 3,
 		});
-		const res = await client.get(rootCid); // Web3Response
+		const res:any = await client.get(rootCid); // Web3Response
 		const files = await res.files(); // Web3File[]
 		for (const file of files) {
 			console.log("file.cid:", file.cid);
@@ -100,9 +99,9 @@ const Home: NextPage = () => {
 	};
 
 	// Cidをアイデアに変える関数
-	const CidToIdea = async (file_cid) => {
+	const CidToIdea = async (file_cid:any) => {
 		try {
-			const { ethereum } = window;
+			const { ethereum } = window as any;
 			if (ethereum) {
 				const provider = new ethers.providers.Web3Provider(ethereum);
 				const signer = provider.getSigner();

@@ -22,7 +22,7 @@ const Ideas: NextPage = () => {
 
 	// コピペ
 	const checkIfWalletIsConnected = async () => {
-		const { ethereum } = window;
+		const { ethereum } = window as any;
 		if (!ethereum) {
 			console.log("Make sure you have MetaMask!");
 			return;
@@ -42,7 +42,7 @@ const Ideas: NextPage = () => {
 	};
 	const connectWallet = async () => {
 		try {
-			const { ethereum } = window;
+			const { ethereum } = window as any;
 			if (!ethereum) {
 				alert("Get MetaMask!");
 				return;
@@ -62,9 +62,9 @@ const Ideas: NextPage = () => {
 	}, []);
 
 	// 特定のアイデアにVoteする関数
-	const voteIdea = async (index) => {
+	const voteIdea = async (index:any) => {
 		try {
-			const { ethereum } = window;
+			const { ethereum } = window as any;
 			console.log("index", index);
 			if (ethereum) {
 				const provider = new ethers.providers.Web3Provider(ethereum);
@@ -86,7 +86,7 @@ const Ideas: NextPage = () => {
 
 	const getAllIdeas = async () => {
 		try {
-			const { ethereum } = window;
+			const { ethereum } = window as any;
 
 			if (ethereum) {
 				const provider = new ethers.providers.Web3Provider(ethereum);
@@ -112,7 +112,7 @@ const Ideas: NextPage = () => {
 			<main className={classes.main}>
 				<h1>アイデア一覧</h1>
 				<div className={classes.ideas}>
-					{ideas.map((idea, index) => {
+					{ideas.map((idea:any, index:any) => {
 						return (
 							<div key={index}>
 								<div className={classes.l_wrapper_06}>
