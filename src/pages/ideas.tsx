@@ -10,14 +10,14 @@ import abi from "utils/VotePortal.json";
 import Image from "next/image";
 import Link from "next/link";
 
-
 const Ideas: NextPage = () => {
 	const [currentAccount, setCurrentAccount] = React.useState("");
 
 	// アイデアのリスト NFTになっていないバージョンすべて
 	const [ideas, setIdeas] = React.useState([]);
 
-	const contractAddress = "0x40C45a6b7dc2562Aa1cC6e1D0Bb0a38254746e0a";
+	// コントラクトアドレス
+	const contractAddress = process.env.NEXT_PUBLIC_PRIVATE_CONTRACT_ADDRESS;
 	const contractABI = abi.abi;
 
 	// コピペ
@@ -62,7 +62,7 @@ const Ideas: NextPage = () => {
 	}, []);
 
 	// 特定のアイデアにVoteする関数
-	const voteIdea = async (index:any) => {
+	const voteIdea = async (index: any, isGood: bool) => {
 		try {
 			const { ethereum } = window as any;
 			console.log("index", index);
@@ -72,7 +72,7 @@ const Ideas: NextPage = () => {
 				const voteContract = new ethers.Contract(contractAddress, contractABI, signer);
 
 				// indexのアイデアに投票する
-				await voteContract.voteIdea(index);
+				await voteContract.voteIdea(index, isGood);
 
 				let result = await voteContract.getIdea(0);
 				console.log("voted result: ", result);
@@ -84,6 +84,7 @@ const Ideas: NextPage = () => {
 		}
 	};
 
+	// すべてのアイデアを取得する関数
 	const getAllIdeas = async () => {
 		try {
 			const { ethereum } = window as any;
@@ -112,12 +113,12 @@ const Ideas: NextPage = () => {
 			<main className={classes.main}>
 				<h1>アイデア一覧</h1>
 				<div className={classes.ideas}>
-					{ideas.map((idea:any, index:any) => {
+					{ideas.map((idea: any, index: any) => {
 						return (
 							<div key={index}>
 								<div className={classes.l_wrapper_06}>
 									<div className={classes.card_06}>
-										<Link href={"https://"+ idea.ideaURL +".ipfs.w3s.link/"}>
+										<Link href={"https://" + idea.ideaURL + ".ipfs.w3s.link/"}>
 											<Image
 												className={classes.card_img_06}
 												src="/images/ether.png"
@@ -131,17 +132,32 @@ const Ideas: NextPage = () => {
 										<div className={classes.card_content_06}>
 											<p className={classes.card_title_06}>{idea.name}</p>
 											<p className={classes.card_text_06}>
-												投票数 : {idea.totalVotes.toNumber()}
+												賛成数 : {idea.goodVotes.toNumber()}
+												反対数 : {idea.badVotes.toNumber()}
 											</p>
 										</div>
-										<div className={classes.card_link_06}>
-											<button
-												className={classes.card_link_btn_06}
-												onClick={() => voteIdea(index)}
-											>
-												投票する
-											</button>
-										</div>
+										{idea.isFinished ? (
+											<div className={classes.card_link_06}>
+												<button className={classes.card_link_btn_06}>
+													投票は終了しました。
+												</button>
+											</div>
+										) : (
+											<div className={classes.card_link_06}>
+												<button
+													className={classes.card_link_btn_06}
+													onClick={() => voteIdea(index, true)}
+												>
+													賛成
+												</button>
+												<button
+													className={classes.card_link_btn_06}
+													onClick={() => voteIdea(index, false)}
+												>
+													反対
+												</button>
+											</div>
+										)}
 									</div>
 								</div>
 							</div>

@@ -17,10 +17,11 @@ import { Web3Storage } from "web3.storage";
 const Home: NextPage = () => {
 	const [currentAccount, setCurrentAccount] = React.useState("");
 
-	const contractAddress = "0x40C45a6b7dc2562Aa1cC6e1D0Bb0a38254746e0a";
+	// コントラクトアドレス
+	const contractAddress = process.env.NEXT_PUBLIC_PRIVATE_CONTRACT_ADDRESS;
 	const contractABI = abi.abi;
 
-	const API_KEY:any = process.env.NEXT_PUBLIC_PRIVATE_WEBSTORAGE_KEY;
+	const API_KEY: any = process.env.NEXT_PUBLIC_PRIVATE_WEBSTORAGE_KEY;
 
 	const checkIfWalletIsConnected = async () => {
 		const { ethereum } = window as any;
@@ -71,12 +72,12 @@ const Home: NextPage = () => {
 
 	// アイデアの名前を記録する関数
 	const [ideaName, setIdeaName] = React.useState("");
-	const getIdeaName = (e:any) => {
+	const getIdeaName = (e: any) => {
 		setIdeaName(e.target.value);
 	};
 
 	// ImageをCIDに変える関数
-	const imageToCid = async (e:any) => {
+	const imageToCid = async (e: any) => {
 		const client = new Web3Storage({
 			token: API_KEY,
 		});
@@ -87,19 +88,15 @@ const Home: NextPage = () => {
 			name: ideaName,
 			maxRetries: 3,
 		});
-		const res:any = await client.get(rootCid); // Web3Response
-		const files = await res.files(); // Web3File[]
-		for (const file of files) {
-			console.log("file.cid:", file.cid);
-			file_cid = file.cid;
-		}
 
-		console.log("file_cid", file_cid);
-		CidToIdea(file_cid);
+		console.log("rootCid", rootCid);
+		console.log("hello");
+
+		CidToIdea(rootCid);
 	};
 
 	// Cidをアイデアに変える関数
-	const CidToIdea = async (file_cid:any) => {
+	const CidToIdea = async (file_cid: any) => {
 		try {
 			const { ethereum } = window as any;
 			if (ethereum) {
