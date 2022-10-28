@@ -9,9 +9,17 @@
 	border-radius: 10px;
 	box-shadow: 0px 0px 8px gray;
 	color: gray;
-
 }
 
+.viewer {
+	background-color: #e4e4e4;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 800px;
+	overflow-y: auto;
+	margin-bottom: 10px;
+}
 
 .outerBox h2 {
 	font-weight: 600;
