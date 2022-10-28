@@ -1,30 +1,45 @@
 import { NextPage } from "next";
 import React from "react";
-import { Document, Page, pdfjs } from "react-pdf";
 
 import classes from "styles/Index.module.css";
 import styles from "styles/Home.module.css";
 import Image from "next/image";
 import { Header } from "src/components/Header";
-
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+import { firebaseApp } from "src/Firebase/firebase";
+import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
+import Previews from "./previews";
 
 const Pdf = () => {
-	const [numPages, setNumPages] = React.useState("https://arxiv.org/pdf/quant-ph/0410100.pdf");
-	const [pageNumber, setPageNumber] = React.useState(2);
-
 	const [pdfUrl, setPdfUrl] = React.useState("");
 	const [pdf, setPdf] = React.useState(null);
 
-	const getPpdUrl = (e) => {
-		const image = e.target;
-		const url = "https://arxiv.org/pdf/quant-ph/0410100.pdf";
-		setPdfUrl(url);
-		setPdf(image.files);
-		console.log(image.files);
+	const [image, setImage] = React.useState();
+
+	const firestorage = firebaseApp.firestorage;
+	const gsReference = ref(firestorage, "gs://vote-dapp-60851.appspot.com/");
+
+	const getImage = (name) => {
+		getDownloadURL(ref(firestorage, "gs://vote-dapp-60851.appspot.com/" + name))
+			.then((url) => {
+				setImage(url);
+			})
+			.catch((err) => console.log(err));
 	};
-	const onDocumentLoadSuccess = ({ numPages }) => {
-		setNumPages(numPages);
+
+	const getPpdUrl = async (e) => {
+		try {
+			const image = e.target.files[0];
+
+			const imageRef = ref(firestorage, "gs://vote-dapp-60851.appspot.com/" + image.name);
+
+			await uploadBytes(imageRef, image).then((snapshot) => {
+				console.log("Uploaded a file!", snapshot);
+			});
+
+			await getImage(image.name);
+		} catch (error) {
+			console.log("エラーキャッチ", error);
+		}
 	};
 
 	return (
@@ -70,24 +85,13 @@ const Pdf = () => {
 					</div>
 				</div>
 			</main>
-			{pdfUrl ? (
-				<div>
-					<Image src={pdf} alt="" />
+			{image ? (
+				<div className={classes.test}>
+					<img src={image} alt="" />
+					<Previews url=image/>
 				</div>
 			) : (
-				<div></div>
-			)}
-			{pdfUrl ? (
-				<div className={classes.pdf}>
-					<Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess}>
-						<Page pageNumber={pageNumber} />
-					</Document>
-					<p>
-						Page {pageNumber} of {numPages}
-					</p>
-				</div>
-			) : (
-				<div></div>
+				<div className={classes.test}>まだImageはアップロードされていません</div>
 			)}
 		</div>
 	);
