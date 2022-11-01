@@ -83,6 +83,7 @@ const Home: NextPage = () => {
 		});
 		const image = e.target;
 		let file_cid;
+		const name = image.files.name;
 
 		const rootCid = await client.put(image.files, {
 			name: ideaName,

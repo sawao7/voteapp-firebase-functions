@@ -19,7 +19,8 @@ const Pdf = () => {
 	const gsReference = ref(firestorage, "gs://vote-dapp-60851.appspot.com/");
 
 	const getImage = (name) => {
-		getDownloadURL(ref(firestorage, "gs://vote-dapp-60851.appspot.com/" + name))
+		//vote-dapp-60851.appspot.com/thumb_/tmp/1-C_インタビュー.jpeg
+		getDownloadURL(ref(firestorage, "gs://vote-dapp-60851.appspot.com/" + "thumb_/tmp/1-C_インタビュー.jpeg"))
 			.then((url) => {
 				setImage(url);
 			})
@@ -36,12 +37,20 @@ const Pdf = () => {
 				console.log("Uploaded a file!", snapshot);
 			});
 
-			await getImage(image.name);
+			// await getImage(image.name);
 		} catch (error) {
 			console.log("エラーキャッチ", error);
 		}
 	};
 
+	React.useEffect(() => {
+		getDownloadURL(ref(firestorage, "gs://vote-dapp-60851.appspot.com/" + "thumb_/tmp/1-C_インタビュー.jpeg"))
+			.then((url) => {
+				setImage(url);
+				console.log(url);
+			})
+			.catch((err) => console.log(err));
+	}, []);
 	return (
 		<div>
 			<Header />
@@ -88,7 +97,6 @@ const Pdf = () => {
 			{image ? (
 				<div className={classes.test}>
 					<img src={image} alt="" />
-					<Previews url=image/>
 				</div>
 			) : (
 				<div className={classes.test}>まだImageはアップロードされていません</div>

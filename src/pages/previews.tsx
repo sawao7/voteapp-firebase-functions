@@ -28,7 +28,7 @@ const Previews = (props) => {
 	return (
 		<div className={classes.viewer}>
 			<Worker workerUrl="https://unpkg.com/pdfjs-dist@2.12.313/build/pdf.worker.min.js">
-				<Viewer fileUrl={url} />
+				<Viewer fileUrl="https://arxiv.org/pdf/2210.10052.pdf" />
 			</Worker>
 		</div>
 	);
