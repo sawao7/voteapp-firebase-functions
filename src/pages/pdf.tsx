@@ -7,17 +7,25 @@ import Image from "next/image";
 import { Header } from "src/components/Header";
 import firebaseApp from "src/Firebase/firebase";
 import { getStorage, ref, getDownloadURL, uploadBytes } from "firebase/storage";
+import { getDatabase, onValue, set, ref as realtime_ref } from "firebase/database";
+
 import Previews from "./previews";
 
 // import { call } from "wasm-imagemagick";
 
 const Pdf = () => {
+	// 最初にFirebaseからすべてのURLをとってくる => 更新用
+	const [URLs, setURLs] = React.useState("");
+
 	const [pdfUrl, setPdfUrl] = React.useState("");
 	const [pdf, setPdf] = React.useState(null);
 
 	const [image, setImage] = React.useState();
 
 	const firestorage = getStorage(firebaseApp);
+
+	const database = getDatabase(firebaseApp);
+
 	const gsReference = ref(firestorage, "gs://vote-dapp-60851.appspot.com/");
 
 	const getImage = (name) => {
@@ -33,10 +41,17 @@ const Pdf = () => {
 		try {
 			const image = e.target.files[0];
 
-			const imageRef = ref(firestorage, "gs://vote-dapp-60851.appspot.com/" + image.name);
+			// const imageRef = ref(firestorage, "gs:/vote-dapp-60851.appspot.com/" + image.name);
+
+			const imageRef = ref(firestorage, image.name);
+			const name = image.name;
 
 			await uploadBytes(imageRef, image).then((snapshot) => {
 				console.log("Uploaded a file!", snapshot);
+
+				set(realtime_ref(database, "/"), {
+					URLs: URLs + "," + name,
+				});
 			});
 
 			// await getImage(image.name);
@@ -62,6 +77,19 @@ const Pdf = () => {
 				console.log(url);
 			})
 			.catch((err) => console.log(err));
+
+		const database = getDatabase(firebaseApp);
+		const currentRef = realtime_ref(database, "URLs/");
+		onValue(
+			currentRef,
+			(snapshot) => {
+				const str = snapshot.val();
+				setURLs(str);
+			},
+			(error) => {
+				console.log(error);
+			}
+		);
 	}, []);
 	return (
 		<div>
