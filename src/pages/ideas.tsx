@@ -10,8 +10,18 @@ import abi from "utils/VotePortal.json";
 import Image from "next/image";
 import Link from "next/link";
 
+import firebaseApp from "src/Firebase/firebase";
+import { getDownloadURL, uploadBytes } from "firebase/storage";
+import { getDatabase, ref, onValue } from "firebase/database";
+
 const Ideas: NextPage = () => {
 	const [currentAccount, setCurrentAccount] = React.useState("");
+	// const [image, setImage] = React.useState("");
+
+	// const firestorage = firebaseApp.firestorage;
+
+	// URL すべて
+	const [URLs, setURLs] = React.useState([]);
 
 	// アイデアのリスト NFTになっていないバージョンすべて
 	const [ideas, setIdeas] = React.useState([]);
@@ -58,6 +68,21 @@ const Ideas: NextPage = () => {
 	};
 	React.useEffect(() => {
 		checkIfWalletIsConnected();
+
+		const database = getDatabase(firebaseApp);
+		const currentRef = ref(database, "URLs/");
+		onValue(
+			currentRef,
+			(snapshot) => {
+				const str = snapshot.val();
+				const ary = str.split(",");
+				setURLs(ary);
+			},
+			(error) => {
+				console.log(error);
+			}
+		);
+
 		getAllIdeas();
 	}, []);
 
@@ -102,6 +127,18 @@ const Ideas: NextPage = () => {
 		}
 	};
 
+	// const getImage = (name) => {
+	// 	//vote-dapp-60851.appspot.com/thumb_/tmp/1-C_インタビュー.jpeg
+	// 	getDownloadURL(ref(firestorage, "gs://vote-dapp-60851.appspot.com/" + "thumb_/tmp/1-C_インタビュー.jpeg"))
+	// 		.then((url) => {
+	// 			setImage(url);
+	// 		})
+	// 		.catch((err) => console.log(err));
+	// };
+	// React.useEffect(() => {
+	// 	getImage("test");
+	// }, []);
+
 	return (
 		<div>
 			<Head>
@@ -112,6 +149,7 @@ const Ideas: NextPage = () => {
 			<Header />
 			<main className={classes.main}>
 				<h1>アイデア一覧</h1>
+
 				<div className={classes.ideas}>
 					{ideas.map((idea: any, index: any) => {
 						return (
@@ -121,7 +159,7 @@ const Ideas: NextPage = () => {
 										<Link href={"https://" + idea.ideaURL + ".ipfs.w3s.link/"}>
 											<Image
 												className={classes.card_img_06}
-												src="/images/ether.png"
+												src={`https://firebasestorage.googleapis.com/v0/b/vote-dapp-60851.appspot.com/o/${URLs[index]}?alt=media`}
 												width={500}
 												height={200}
 												objectFit="cover"

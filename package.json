@@ -20,6 +20,7 @@
 		"react-file-previewer": "^0.6.3",
 		"react-pdf": "^5.7.2",
 		"react-pdf-viewer": "^0.1.0",
+		"wasm-imagemagick": "^1.2.8",
 		"web3.storage": "^4.4.0"
 	},
 	"devDependencies": {

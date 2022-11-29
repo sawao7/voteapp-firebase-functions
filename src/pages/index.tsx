@@ -17,6 +17,8 @@ import { Web3Storage } from "web3.storage";
 const Home: NextPage = () => {
 	const [currentAccount, setCurrentAccount] = React.useState("");
 
+	const [image, setImage] = React.useState();
+
 	// コントラクトアドレス
 	const contractAddress = process.env.NEXT_PUBLIC_PRIVATE_CONTRACT_ADDRESS;
 	const contractABI = abi.abi;
@@ -124,6 +126,12 @@ const Home: NextPage = () => {
 		}
 	};
 
+	const Thumbnail = async (e) => {
+		const thumbnail = e.target.files[0];
+		console.log(thumbnail);
+		await setImage(thumbnail);
+	};
+
 	return (
 		<div>
 			<Head>
@@ -134,7 +142,7 @@ const Home: NextPage = () => {
 			<Header />
 
 			<main className={styles.main}>
-				{/* <button onClick={addNewIdea}>アイデアを加える</button> */}
+				{image ? <img src={image} alt="" /> : <div></div>}
 
 				<div className={classes.outerBox}>
 					{currentAccount === "" ? (
@@ -173,6 +181,32 @@ const Home: NextPage = () => {
 									type="file"
 									accept=".pdf, .png, .jpg"
 									onChange={imageToCid}
+								/>
+							</button>
+							<div className={classes.title}>
+								<h2>サムネイルをアップロードしよう</h2>
+							</div>
+							<div className={classes.nftUplodeBox}>
+								<div className={classes.imageLogoAndText}>
+									<p>ここにドラッグ＆ドロップしてね</p>
+								</div>
+								<input
+									className={classes.nftUploadInput}
+									multiple
+									name="imageURL"
+									type="file"
+									accept=".png, .jpg"
+									onChange={Thumbnail}
+								/>
+							</div>
+							<p>または</p>
+							<button>
+								ファイルを選択
+								<input
+									className={classes.nftUploadInput}
+									type="file"
+									accept=".png, .jpg"
+									onChange={Thumbnail}
 								/>
 							</button>
 						</div>

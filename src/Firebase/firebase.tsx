@@ -1,23 +1,20 @@
 import { initializeApp } from "firebase/app";
-import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-	apiKey: "AIzaSyB2TNHiuTsVUOcJuysR2zPnKpWky_ozK9c",
-	authDomain: "growp-84484.firebaseapp.com",
-	projectId: "growp-84484",
-	storageBucket: "growp-84484.appspot.com",
-	messagingSenderId: "37382778657",
-	appId: "1:37382778657:web:0d3dbf2332bd75448c1860",
+	apiKey: "AIzaSyC8kVkXpcKOQfekHc8kOifDaBbRFP-9nMU",
+	authDomain: "vote-dapp-60851.firebaseapp.com",
+	databaseURL: "https://vote-dapp-60851-default-rtdb.firebaseio.com",
+	projectId: "vote-dapp-60851",
+	storageBucket: "vote-dapp-60851.appspot.com",
+	messagingSenderId: "357973271138",
+	appId: "1:357973271138:web:ddd82f673ff2b569c4673b",
 };
 
-const firebase = initializeApp(firebaseConfig);
-const firestorage = getStorage(firebase);
+const firebaseApp = initializeApp(firebaseConfig);
 
 // Initialize firebase
 // firebase.initializeApp(firebaseConfig);
 // export const storage = firebase.storage();
 // export default firebase;
 
-export const firebaseApp = {
-	firestorage,
-};
+export default firebaseApp;

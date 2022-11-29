@@ -5,9 +5,11 @@ import classes from "styles/Index.module.css";
 import styles from "styles/Home.module.css";
 import Image from "next/image";
 import { Header } from "src/components/Header";
-import { firebaseApp } from "src/Firebase/firebase";
-import { ref, getDownloadURL, uploadBytes } from "firebase/storage";
+import firebaseApp from "src/Firebase/firebase";
+import { getStorage, ref, getDownloadURL, uploadBytes } from "firebase/storage";
 import Previews from "./previews";
+
+// import { call } from "wasm-imagemagick";
 
 const Pdf = () => {
 	const [pdfUrl, setPdfUrl] = React.useState("");
@@ -15,7 +17,7 @@ const Pdf = () => {
 
 	const [image, setImage] = React.useState();
 
-	const firestorage = firebaseApp.firestorage;
+	const firestorage = getStorage(firebaseApp);
 	const gsReference = ref(firestorage, "gs://vote-dapp-60851.appspot.com/");
 
 	const getImage = (name) => {
@@ -42,6 +44,16 @@ const Pdf = () => {
 			console.log("エラーキャッチ", error);
 		}
 	};
+
+	// const test = async (e) => {
+	// 	const fetchedSourceImage = e.target.files[0];
+	// 	const content = new Uint8Array(await fetchedSourceImage.arrayBuffer());
+	// 	const image = { name: "srcFile.png", content };
+
+	// 	const command = ["convert", "srcFile.png", "-rotate", "90", "-resize", "200%", "out.png"];
+	// 	// const result = await call([image], command);
+	// 	// console.log(result);
+	// };
 
 	React.useEffect(() => {
 		getDownloadURL(ref(firestorage, "gs://vote-dapp-60851.appspot.com/" + "thumb_/tmp/1-C_インタビュー.jpeg"))
