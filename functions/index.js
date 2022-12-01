@@ -92,22 +92,30 @@ const fs = require("fs");
 const gs = require("gs");
 
 exports.generateThumbnail = functions.storage.object().onFinalize(async (object) => {
+	// 無限ループ防止
 	if (object.contentType !== "application/pdf") {
 		return;
 	}
+	// const contentType = object.contentType; // File content type.
+	// Get the file name.
 	const fileBucket = object.bucket; // The Storage bucket that contains the file.
 	const filePath = object.name; // File path in the bucket.
-	const contentType = object.contentType; // File content type.
-	// Get the file name.
 	const fileName = path.basename(filePath);
+
 	// Exit if the image is already a thumbnail.
-	if (fileName.startsWith("thumb_")) {
-		return functions.logger.log("Already a Thumbnail.");
-	}
+	// if (fileName.startsWith("thumb_")) {
+	// 	return functions.logger.log("Already a Thumbnail.");
+	// }
 	// Download file from bucket.
 	const bucket = admin.storage().bucket(fileBucket);
 	const tempFilePath = path.join(os.tmpdir(), fileName);
 	const outputFile = tempFilePath.replace(".pdf", ".jpeg");
+
+	console.log("filepath is ", filePath);
+	console.log("filename is ", fileName);
+	console.log("tmpfilepath is ", tempFilePath);
+	console.log("outputfile is ", outputFile);
+
 	// const metadata = {
 	// 	contentType: contentType,
 	// };
@@ -135,26 +143,13 @@ exports.generateThumbnail = functions.storage.object().onFinalize(async (object)
 			}
 		});
 
-	// functions.logger.log("Image downloaded locally to", tempFilePath);
-	// Generate a thumbnail using ImageMagick.
-	// await spawn("convert", ["-thumbnail", "200x200", tempFilePath + "[0]", outputFile]);
-	// await spawn("gs", ["-sstdout=%stderr", "-sDEVICE=jpeg", "-r300", "-o", outputFile, tempFilePath]);
-	// // await spawn("convert", [
-	// // 	"-resize",
-	// // 	"200x200", // 文字色の指定。白文字に設定
-	// // 	tempFilePath, // 入力画像のパス
-	// // 	outputFile,
-	// // ]);
-	// functions.logger.log("Thumbnail created at", outputFile);
-	// We add a 'thumb_' prefix to thumbnails file name. That's where we'll upload the thumbnail.
-	const thumbFileName = `thumb_${outputFile}`;
-	const thumbFilePath = path.join(path.dirname(filePath), thumbFileName);
+	// const thumbFileName = `thumb_${outputFile}`;
+	// const thumbFilePath = path.join(path.dirname(filePath), thumbFileName);
 	// Uploading the thumbnail.
-	await bucket.upload(thumbFileName, {
-		destination: thumbFilePath,
+	await bucket.upload(outputFile, {
+		destination: outputFile,
 		// metadata: metadata,
 	});
-	// Once the thumbnail has been uploaded delete the local file to free up disk space.
 	return fs.unlinkSync(tempFilePath);
 });
 // // Start writing Firebase Functions
