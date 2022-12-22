@@ -26,10 +26,6 @@ exports.generateThumbnail = functions.storage.object().onFinalize(async (object)
 	// const outputFile = tempFilePath.replace(".pdf", ".jpeg");
 	const outputFile = path.join(os.tmpdir(), "output.jpeg");
 
-	const metadata = {
-		contentType: "application/pdf",
-	};
-
 	console.log("filepath is ", filePath);
 	console.log("filename is ", fileName);
 	console.log("tmpfilepath is ", tempFilePath);
@@ -51,7 +47,10 @@ exports.generateThumbnail = functions.storage.object().onFinalize(async (object)
 				console.log("gs executed w/o error");
 				console.log("stdout", stdout);
 				console.log("stderr", stderr);
-				bucket.upload(outputFile, { destination: outputFile });
+				// destination のoutputfileを変えるのはあり
+				const outputFileName = filePath.replace(".pdf", ".jpeg");
+
+				bucket.upload(outputFile, { destination: outputFileName });
 				resolve();
 			} else {
 				console.log("gs error:", err);
