@@ -12,12 +12,25 @@ import { Header } from "src/components/Header";
 import { ethers } from "ethers";
 import abi from "utils/VotePortal.json";
 
+// firebase storage and realtime database
+import firebaseApp from "src/Firebase/firebase";
+import { getStorage, ref, getDownloadURL, uploadBytes } from "firebase/storage";
+import { getDatabase, onValue, set, ref as realtime_ref } from "firebase/database";
+
 import { Web3Storage } from "web3.storage";
 
 const Home: NextPage = () => {
 	const [currentAccount, setCurrentAccount] = React.useState("");
 
+	// 最初にFirebaseからすべてのURLをとってくる => 更新用
+	const [URLs, setURLs] = React.useState("");
+
 	const [image, setImage] = React.useState();
+
+	// firebase storage
+	const firestorage = getStorage(firebaseApp);
+	// firebase realtime database
+	const database = getDatabase(firebaseApp);
 
 	// コントラクトアドレス
 	const contractAddress = process.env.NEXT_PUBLIC_PRIVATE_CONTRACT_ADDRESS;
@@ -70,6 +83,20 @@ const Home: NextPage = () => {
 
 	React.useEffect(() => {
 		checkIfWalletIsConnected();
+
+		// 常にrealtime databaseに記録しているものを、URLsに記録しておく
+		const database = getDatabase(firebaseApp);
+		const currentRef = realtime_ref(database, "URLs/");
+		onValue(
+			currentRef,
+			(snapshot) => {
+				const str = snapshot.val();
+				setURLs(str);
+			},
+			(error) => {
+				console.log(error);
+			}
+		);
 	}, []);
 
 	// アイデアの名前を記録する関数
@@ -83,11 +110,25 @@ const Home: NextPage = () => {
 		const client = new Web3Storage({
 			token: API_KEY,
 		});
-		const image = e.target;
-		let file_cid;
-		const name = image.files.name;
+		const image = e.target.files[0];
+		const name = image.name; // この時点では、~.pdfのはず
 
-		const rootCid = await client.put(image.files, {
+		// firebase storageにアップロード
+		const imageRef = ref(firestorage, name);
+		await uploadBytes(imageRef, image).then((snapshot) => {
+			console.log("Uploaded a file!", snapshot);
+
+			// firebase realtime database に記録
+			// この時の名前は、拡張子をjpegに変える
+			const name_jpeg = name.replace(".pdf", ".jpeg");
+			set(realtime_ref(database, "/"), {
+				URLs: URLs + "," + name_jpeg,
+			});
+		});
+
+		let file_cid;
+
+		const rootCid = await client.put(e.target.files, {
 			name: ideaName,
 			maxRetries: 3,
 		});
@@ -124,12 +165,6 @@ const Home: NextPage = () => {
 		} catch (error) {
 			console.log(error);
 		}
-	};
-
-	const Thumbnail = async (e) => {
-		const thumbnail = e.target.files[0];
-		console.log(thumbnail);
-		await setImage(thumbnail);
 	};
 
 	return (
@@ -181,32 +216,6 @@ const Home: NextPage = () => {
 									type="file"
 									accept=".pdf, .png, .jpg"
 									onChange={imageToCid}
-								/>
-							</button>
-							<div className={classes.title}>
-								<h2>サムネイルをアップロードしよう</h2>
-							</div>
-							<div className={classes.nftUplodeBox}>
-								<div className={classes.imageLogoAndText}>
-									<p>ここにドラッグ＆ドロップしてね</p>
-								</div>
-								<input
-									className={classes.nftUploadInput}
-									multiple
-									name="imageURL"
-									type="file"
-									accept=".png, .jpg"
-									onChange={Thumbnail}
-								/>
-							</div>
-							<p>または</p>
-							<button>
-								ファイルを選択
-								<input
-									className={classes.nftUploadInput}
-									type="file"
-									accept=".png, .jpg"
-									onChange={Thumbnail}
 								/>
 							</button>
 						</div>
