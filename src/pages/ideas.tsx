@@ -158,6 +158,12 @@ const Ideas: NextPage = () => {
 												height={200}
 												objectFit="cover"
 												alt=""
+												// onError={() => {
+												// 	const currentNames = JpegNames;
+												// 	currentNames.splice(index, 1, "loading.jpeg");
+												// 	console.log(currentNames);
+												// 	setJpegNames(currentNames);
+												// }}
 											/>
 										</Link>
 
