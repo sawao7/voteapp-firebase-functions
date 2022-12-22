@@ -19,6 +19,9 @@ import { getDatabase, onValue, set, ref as realtime_ref } from "firebase/databas
 
 import { Web3Storage } from "web3.storage";
 
+// ページ遷移
+import { useRouter } from "next/router";
+
 const Home: NextPage = () => {
 	const [currentAccount, setCurrentAccount] = React.useState("");
 
@@ -31,6 +34,10 @@ const Home: NextPage = () => {
 	const firestorage = getStorage(firebaseApp);
 	// firebase realtime database
 	const database = getDatabase(firebaseApp);
+
+	// ページ遷移 router
+	const router = useRouter();
+
 
 	// コントラクトアドレス
 	const contractAddress = process.env.NEXT_PUBLIC_PRIVATE_CONTRACT_ADDRESS;
@@ -161,6 +168,9 @@ const Home: NextPage = () => {
 				await IdeaTxn.wait();
 
 				console.log("success");
+
+				//idea一覧画面に遷移させたい
+				router.push("/ideas");
 			}
 		} catch (error) {
 			console.log(error);

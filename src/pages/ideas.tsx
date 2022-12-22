@@ -16,12 +16,10 @@ import { getDatabase, ref, onValue } from "firebase/database";
 
 const Ideas: NextPage = () => {
 	const [currentAccount, setCurrentAccount] = React.useState("");
-	// const [image, setImage] = React.useState("");
-
-	// const firestorage = firebaseApp.firestorage;
-
 	// URL すべて
-	const [URLs, setURLs] = React.useState([]);
+	const [JpegNames, setJpegNames] = React.useState([]);
+	// PDFの名前すべて
+	const [PdfNames, setPdfNames] = React.useState([]);
 
 	// アイデアのリスト NFTになっていないバージョンすべて
 	const [ideas, setIdeas] = React.useState([]);
@@ -76,7 +74,15 @@ const Ideas: NextPage = () => {
 			(snapshot) => {
 				const str = snapshot.val();
 				const ary = str.split(",");
-				setURLs(ary);
+
+				setJpegNames(ary);
+
+				// 拡張子jpegをpdfにしてpdfNamesに保存
+				const pdfAry = [];
+				ary.map((name) => {
+					pdfAry.push(name.replace(".jpeg", ".pdf"));
+				});
+				setPdfNames(pdfAry);
 			},
 			(error) => {
 				console.log(error);
@@ -127,18 +133,6 @@ const Ideas: NextPage = () => {
 		}
 	};
 
-	// const getImage = (name) => {
-	// 	//vote-dapp-60851.appspot.com/thumb_/tmp/1-C_インタビュー.jpeg
-	// 	getDownloadURL(ref(firestorage, "gs://vote-dapp-60851.appspot.com/" + "thumb_/tmp/1-C_インタビュー.jpeg"))
-	// 		.then((url) => {
-	// 			setImage(url);
-	// 		})
-	// 		.catch((err) => console.log(err));
-	// };
-	// React.useEffect(() => {
-	// 	getImage("test");
-	// }, []);
-
 	return (
 		<div>
 			<Head>
@@ -156,10 +150,10 @@ const Ideas: NextPage = () => {
 							<div key={index}>
 								<div className={classes.l_wrapper_06}>
 									<div className={classes.card_06}>
-										<Link href={"https://" + idea.ideaURL + ".ipfs.w3s.link/"}>
+										<Link href={"https://" + idea.ideaURL + ".ipfs.w3s.link/" + PdfNames[index]}>
 											<Image
 												className={classes.card_img_06}
-												src={`https://firebasestorage.googleapis.com/v0/b/vote-dapp-60851.appspot.com/o/${URLs[index]}?alt=media`}
+												src={`https://firebasestorage.googleapis.com/v0/b/vote-dapp-60851.appspot.com/o/${JpegNames[index]}?alt=media`}
 												width={500}
 												height={200}
 												objectFit="cover"

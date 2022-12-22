@@ -2,10 +2,12 @@ import Link from "next/link";
 import styles from "styles/Home.module.css";
 
 export const Header = () => {
-    return (
+	return (
 		<div className={styles.header}>
 			<div className={styles.headerLogo}>
-				<p>Idea Dao</p>
+				<Link href="/">
+					<p>Idea Dao</p>
+				</Link>
 			</div>
 			<div className={styles.headerContent}>
 				<Link href="/">
@@ -13,8 +15,8 @@ export const Header = () => {
 				</Link>
 				<Link href="/ideas">
 					<p className={styles.headerText}>Ideas</p>
-                </Link>
-            </div>
+				</Link>
+			</div>
 		</div>
 	);
-}
+};
