@@ -30,6 +30,8 @@
 	border-radius: 5px 5px 0 0;
 	max-width: 100%;
 	height: auto;
+	background-image: url("https://firebasestorage.googleapis.com/v0/b/vote-dapp-60851.appspot.com/o/loading.jpeg?alt=media");
+	background-size: cover;
 }
 .card_img_06:hover {
 	cursor: pointer;

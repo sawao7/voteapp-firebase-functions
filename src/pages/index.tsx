@@ -114,6 +114,8 @@ const Home: NextPage = () => {
 
 	// ImageをCIDに変える関数
 	const imageToCid = async (e: any) => {
+		// モーダルを表示 "審査中"
+
 		const client = new Web3Storage({
 			token: API_KEY,
 		});
@@ -164,11 +166,13 @@ const Home: NextPage = () => {
 				}
 
 				// アイデア 作成
+				// モーダルを表示 "アップロード中"
 				let IdeaTxn = await voteContract.addIdea(ideaName, file_cid);
 				await IdeaTxn.wait();
 
 				console.log("success");
 
+				// モーダルを削除
 				//idea一覧画面に遷移させたい
 				router.push("/ideas");
 			}

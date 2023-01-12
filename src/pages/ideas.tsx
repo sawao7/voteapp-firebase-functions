@@ -126,6 +126,7 @@ const Ideas: NextPage = () => {
 				const voteContract = new ethers.Contract(contractAddress, contractABI, signer);
 
 				const ideas = await voteContract.getAllIdeas();
+				console.log(ideas);
 				setIdeas(ideas);
 			}
 		} catch (error) {
