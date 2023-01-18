@@ -3,7 +3,7 @@ import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "styles/Home.module.css";
-import React from "react";
+import React, { useState } from "react";
 
 import classes from "styles/Index.module.css";
 import { Header } from "src/components/Header";
@@ -22,8 +22,26 @@ import { Web3Storage } from "web3.storage";
 // ページ遷移
 import { useRouter } from "next/router";
 
+// material ui
+import { Button, Container, Stack, TextField, Box, Typography, Modal } from "@mui/material";
+
+const style = {
+	position: "absolute" as "absolute",
+	top: "50%",
+	left: "50%",
+	transform: "translate(-50%, -50%)",
+	width: 600,
+	bgcolor: "background.paper",
+	boxShadow: 24,
+	p: 4,
+};
+
 const Home: NextPage = () => {
 	const [currentAccount, setCurrentAccount] = React.useState("");
+
+	// モーダル
+	const [modalOpenComfirm, setModalOpenComfirm] = React.useState(false);
+	const [modalOpenUpload, setModalOpenUpload] = React.useState(false);
 
 	// 最初にFirebaseからすべてのURLをとってくる => 更新用
 	const [URLs, setURLs] = React.useState("");
@@ -37,7 +55,6 @@ const Home: NextPage = () => {
 
 	// ページ遷移 router
 	const router = useRouter();
-
 
 	// コントラクトアドレス
 	const contractAddress = process.env.NEXT_PUBLIC_PRIVATE_CONTRACT_ADDRESS;
@@ -115,6 +132,7 @@ const Home: NextPage = () => {
 	// ImageをCIDに変える関数
 	const imageToCid = async (e: any) => {
 		// モーダルを表示 "審査中"
+		setModalOpenComfirm((frag) => !frag);
 
 		const client = new Web3Storage({
 			token: API_KEY,
@@ -145,6 +163,7 @@ const Home: NextPage = () => {
 		console.log("rootCid", rootCid);
 		console.log("hello");
 
+		setModalOpenComfirm((frag) => !frag);
 		CidToIdea(rootCid);
 	};
 
@@ -167,11 +186,12 @@ const Home: NextPage = () => {
 
 				// アイデア 作成
 				// モーダルを表示 "アップロード中"
+				setModalOpenUpload((frag) => !frag);
 				let IdeaTxn = await voteContract.addIdea(ideaName, file_cid);
 				await IdeaTxn.wait();
 
 				console.log("success");
-
+				setModalOpenUpload((frag) => !frag);
 				// モーダルを削除
 				//idea一覧画面に遷移させたい
 				router.push("/ideas");
@@ -191,7 +211,39 @@ const Home: NextPage = () => {
 			<Header />
 
 			<main className={styles.main}>
-				{image ? <img src={image} alt="" /> : <div></div>}
+				<Modal
+					open={modalOpenComfirm}
+					aria-labelledby="modal-modal-title"
+					aria-describedby="modal-modal-description"
+				>
+					<Box sx={style}>
+						<Typography id="modal-modal-title" variant="h6" component="h2">
+							確認中
+						</Typography>
+						<Typography sx={{ mt: 2 }}>
+							正しいフォーマットかどうか確認しています。
+							<br />
+							処理が無事完了すると、Metamaskの認証画面に移行します。
+						</Typography>
+					</Box>
+				</Modal>
+
+				<Modal
+					open={modalOpenUpload}
+					aria-labelledby="modal-modal-title"
+					aria-describedby="modal-modal-description"
+				>
+					<Box sx={style}>
+						<Typography id="modal-modal-title" variant="h6" component="h2">
+							アップロード中
+						</Typography>
+						<Typography sx={{ mt: 2 }}>
+							IPFSにアップロード中です。
+							<br />
+							長い場合は数分程度お待ちいただくことがあります。画面から離れずにお待ちください。
+						</Typography>
+					</Box>
+				</Modal>
 
 				<div className={classes.outerBox}>
 					{currentAccount === "" ? (
