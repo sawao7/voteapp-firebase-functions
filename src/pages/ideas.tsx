@@ -88,8 +88,41 @@ const Ideas: NextPage = () => {
 				console.log(error);
 			}
 		);
-
 		getAllIdeas();
+
+		let voteContract;
+
+		const onNewNFT = (idea) => {
+			console.log("onNewNFT", idea);
+			//openseaへのリンク
+			// 正しいURLはネットワーク名も入れる必要があるもの
+			console.log("https://testnets.opensea.io/assets/あなたのコントラクトアドレス/" + 0);
+
+			// setAllWaves((prevState) => [
+			// 	...prevState,
+			// 	{
+			// 		address: from,
+			// 		timestamp: new Date(timestamp * 1000),
+			// 		message: message,
+			// 	},
+			// ]);
+		};
+
+		/* Newイベントがコントラクトから発信されたときに、情報を受け取ります */
+		if (window.ethereum) {
+			const provider = new ethers.providers.Web3Provider(window.ethereum);
+			const signer = provider.getSigner();
+
+			voteContract = new ethers.Contract(contractAddress, contractABI, signer);
+			voteContract.on("NewNFT", onNewNFT);
+		}
+		/*メモリリークを防ぐために、NewWaveのイベントを解除します*/
+		return () => {
+			if (voteContract) {
+				voteContract.off("NewNFT", onNewNFT);
+			}
+		};
+
 	}, []);
 
 	// 特定のアイデアにVoteする関数
