@@ -96,7 +96,7 @@ const Ideas: NextPage = () => {
 			console.log("onNewNFT", idea);
 			//openseaへのリンク
 			// 正しいURLはネットワーク名も入れる必要があるもの
-			console.log("https://testnets.opensea.io/assets/あなたのコントラクトアドレス/" + 0);
+			console.log("https://testnets.opensea.io/assets/goerli/0xa964f714688ad15aE0d514a5cBD04f8A34a035C1/" + 0);
 
 			// setAllWaves((prevState) => [
 			// 	...prevState,
