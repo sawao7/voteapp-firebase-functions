@@ -174,7 +174,7 @@ const Home: NextPage = () => {
 			if (ethereum) {
 				const provider = new ethers.providers.Web3Provider(ethereum);
 				const signer = provider.getSigner();
-				const voteContract = new ethers.Contract(contractAddress, contractABI, signer);
+				const voteContract = new ethers.Contract(voteContract, contractABI, signer);
 
 				// (アイデア名) => ideaName;
 				// console.log(ideaName);

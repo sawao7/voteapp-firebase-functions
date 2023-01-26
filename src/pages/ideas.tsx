@@ -19,10 +19,11 @@ const Ideas: NextPage = () => {
 	// URL すべて
 	const [JpegNames, setJpegNames] = React.useState([]);
 	// PDFの名前すべて
-	const [PdfNames, setPdfNames] = React.useState([]);
+	const [PdfNames, setPdfNames]: any[] = React.useState([]);
 
 	// アイデアのリスト NFTになっていないバージョンすべて
 	const [ideas, setIdeas] = React.useState([]);
+	console.log(typeof ideas[0]);
 
 	// コントラクトアドレス
 	const contractAddress = process.env.NEXT_PUBLIC_PRIVATE_CONTRACT_ADDRESS;
@@ -78,8 +79,8 @@ const Ideas: NextPage = () => {
 				setJpegNames(ary);
 
 				// 拡張子jpegをpdfにしてpdfNamesに保存
-				const pdfAry = [];
-				ary.map((name) => {
+				const pdfAry: any[] = [];
+				ary.map((name: any) => {
 					pdfAry.push(name.replace(".jpeg", ".pdf"));
 				});
 				setPdfNames(pdfAry);
@@ -90,15 +91,32 @@ const Ideas: NextPage = () => {
 		);
 		getAllIdeas();
 
-		let voteContract;
+		let voteContract: any;
 
-		const onNewNFT = (idea) => {
+		const onNewNFT = (idea: any) => {
 			console.log("onNewNFT", idea);
 			//openseaへのリンク
 			// 正しいURLはネットワーク名も入れる必要があるもの
+			// const currentIdeas = [...ideas];
+			// console.log(idea);
+			let currentIdea = { ...idea };
+			currentIdea.message = "NFTになりました";
+			// const currentIdea = currentIdeas()
+			// console.log("currentidea", currentIdea);
+			let currentIdeas = [...ideas];
+			console.log("before curent ideas", currentIdeas);
+			let count = 0;
+			currentIdeas.map((ideas) => {
+				if (ideas.ideaURL == currentIdea.ideaURL) {
+					currentIdeas[count] = currentIdea;
+				} else {
+					count += 1;
+				}
+			});
+			console.log("after currentIdeas", currentIdeas);
+			// console.log("idea", idea);
 			console.log("https://testnets.opensea.io/assets/goerli/0xa964f714688ad15aE0d514a5cBD04f8A34a035C1/" + 0);
 
-			
 			// setAllWaves((prevState) => [
 			// 	...prevState,
 			// 	{
@@ -110,8 +128,9 @@ const Ideas: NextPage = () => {
 		};
 
 		/* Newイベントがコントラクトから発信されたときに、情報を受け取ります */
-		if (window.ethereum) {
-			const provider = new ethers.providers.Web3Provider(window.ethereum);
+		const { ethereum } = window as any;
+		if (ethereum) {
+			const provider = new ethers.providers.Web3Provider(ethereum);
 			const signer = provider.getSigner();
 
 			voteContract = new ethers.Contract(contractAddress, contractABI, signer);
@@ -123,7 +142,6 @@ const Ideas: NextPage = () => {
 				voteContract.off("NewNFT", onNewNFT);
 			}
 		};
-
 	}, []);
 
 	// 特定のアイデアにVoteする関数
@@ -211,9 +229,7 @@ const Ideas: NextPage = () => {
 										</div>
 										{idea.isFinished ? (
 											<div className={classes.card_link_06}>
-												<button className={classes.card_link_btn_06}>
-													投票は終了しました。
-												</button>
+												<button className={classes.card_link_btn_06}>NFTをOpenseaで見る</button>
 											</div>
 										) : (
 											<div className={classes.card_link_06}>
