@@ -57,7 +57,7 @@ const Home: NextPage = () => {
 	const router = useRouter();
 
 	// コントラクトアドレス
-	const contractAddress = process.env.NEXT_PUBLIC_PRIVATE_CONTRACT_ADDRESS;
+	const contractAddress: any = process.env.NEXT_PUBLIC_PRIVATE_CONTRACT_ADDRESS;
 	const contractABI = abi.abi;
 
 	const API_KEY: any = process.env.NEXT_PUBLIC_PRIVATE_WEBSTORAGE_KEY;
@@ -170,7 +170,7 @@ const Home: NextPage = () => {
 	};
 
 	// Cidをアイデアに変える関数
-	const CidToIdea = async (file_cid: any, name_original) => {
+	const CidToIdea = async (file_cid: any, name_original: any) => {
 		try {
 			const { ethereum } = window as any;
 			if (ethereum) {

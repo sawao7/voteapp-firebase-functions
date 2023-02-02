@@ -17,7 +17,7 @@ const Ideas: NextPage = () => {
 	const [ideas, setIdeas] = React.useState([]);
 
 	// コントラクトアドレス
-	const contractAddress = process.env.NEXT_PUBLIC_PRIVATE_CONTRACT_ADDRESS;
+	const contractAddress: any = process.env.NEXT_PUBLIC_PRIVATE_CONTRACT_ADDRESS;
 	const contractABI = abi.abi;
 
 	// コピペ
@@ -62,7 +62,7 @@ const Ideas: NextPage = () => {
 	}, []);
 
 	// 特定のアイデアにVoteする関数
-	const voteIdea = async (index: any, isGood: bool) => {
+	const voteIdea = async (index: any, isGood: boolean) => {
 		try {
 			const { ethereum } = window as any;
 			console.log("index", index);
