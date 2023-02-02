@@ -150,11 +150,10 @@ const Ideas: NextPage = () => {
 												<div className={classes.card_link_06}>
 													<Link
 														href={
-															"https://" +
-															idea.ideaURL +
-															".ipfs.w3s.link/" +
-															idea.nameOriginal +
-															".pdf"
+															"https://testnets.opensea.io/assets/goerli/" +
+															contractAddress +
+															"/" +
+															idea.index
 														}
 													>
 														<button className={classes.card_link_btn_06}>
