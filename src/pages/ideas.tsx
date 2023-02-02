@@ -163,9 +163,19 @@ const Ideas: NextPage = () => {
 												</div>
 											) : (
 												<div className={classes.card_link_06}>
-													<button className={classes.card_link_btn_06}>
-														差し戻しになりました
-													</button>
+													<Link
+														href={
+															"https://" +
+															idea.ideaURL +
+															".ipfs.w3s.link/" +
+															idea.nameOriginal +
+															".pdf"
+														}
+													>
+														<button className={classes.card_link_btn_06}>
+															差し戻しになりました
+														</button>
+													</Link>
 												</div>
 											)
 										) : (
