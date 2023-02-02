@@ -164,17 +164,19 @@ const Home: NextPage = () => {
 		console.log("hello");
 
 		setModalOpenComfirm((frag) => !frag);
-		CidToIdea(rootCid);
+
+		const name_original = name.replace(".pdf", "");
+		CidToIdea(rootCid, name_original);
 	};
 
 	// Cidをアイデアに変える関数
-	const CidToIdea = async (file_cid: any) => {
+	const CidToIdea = async (file_cid: any, name_original) => {
 		try {
 			const { ethereum } = window as any;
 			if (ethereum) {
 				const provider = new ethers.providers.Web3Provider(ethereum);
 				const signer = provider.getSigner();
-				const voteContract = new ethers.Contract(voteContract, contractABI, signer);
+				const voteContract = new ethers.Contract(contractAddress, contractABI, signer);
 
 				// (アイデア名) => ideaName;
 				// console.log(ideaName);
@@ -187,7 +189,7 @@ const Home: NextPage = () => {
 				// アイデア 作成
 				// モーダルを表示 "アップロード中"
 				setModalOpenUpload((frag) => !frag);
-				let IdeaTxn = await voteContract.addIdea(ideaName, file_cid);
+				let IdeaTxn = await voteContract.addIdea(ideaName, file_cid, name_original);
 				await IdeaTxn.wait();
 
 				console.log("success");
