@@ -6,7 +6,7 @@ export const Header = () => {
 		<div className={styles.header}>
 			<div className={styles.headerLogo}>
 				<Link href="/">
-					<p>Idea Dao</p>
+					<p>Ideas Dao</p>
 				</Link>
 			</div>
 			<div className={styles.headerContent}>

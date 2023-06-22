@@ -24,6 +24,9 @@ import { useRouter } from "next/router";
 
 // material ui
 import { Button, Container, Stack, TextField, Box, Typography, Modal } from "@mui/material";
+import { Web3Auth } from "@web3auth/modal";
+
+
 
 const style = {
 	position: "absolute" as "absolute",
@@ -36,7 +39,18 @@ const style = {
 	p: 4,
 };
 
+const web3auth = new Web3Auth({
+	clientId: "BJGFBlJG9JpTya-vbj6sVow_k40-EHuvHLzUlxchVGkNTAcWgCnsehzbd2uNmwayP0palt3nMhzdOFHtCqH_wFE", // Get your Client ID from Web3Auth Dashboard
+	chainConfig: {
+		chainNamespace: "eip155",
+		chainId: "0x5", // Please use 0x5 for Goerli Testnet
+	},
+});
+web3auth.initModal();
+
 const Home: NextPage = () => {
+	//Initialize within your constructor
+
 	const [currentAccount, setCurrentAccount] = React.useState("");
 
 	// モーダル
