@@ -26,8 +26,6 @@ import { useRouter } from "next/router";
 import { Button, Container, Stack, TextField, Box, Typography, Modal } from "@mui/material";
 import { Web3Auth } from "@web3auth/modal";
 
-
-
 const style = {
 	position: "absolute" as "absolute",
 	top: "50%",
@@ -39,14 +37,7 @@ const style = {
 	p: 4,
 };
 
-const web3auth = new Web3Auth({
-	clientId: "BJGFBlJG9JpTya-vbj6sVow_k40-EHuvHLzUlxchVGkNTAcWgCnsehzbd2uNmwayP0palt3nMhzdOFHtCqH_wFE", // Get your Client ID from Web3Auth Dashboard
-	chainConfig: {
-		chainNamespace: "eip155",
-		chainId: "0x5", // Please use 0x5 for Goerli Testnet
-	},
-});
-web3auth.initModal();
+// web3auth.initModal();
 
 const Home: NextPage = () => {
 	//Initialize within your constructor
@@ -85,32 +76,72 @@ const Home: NextPage = () => {
 			console.log("We have the ethereum object", ethereum);
 		}
 
-		const accounts = await ethereum.request({ method: "eth_accounts" });
+		// const accounts = await ethereum.request({ method: "eth_accounts" });
 
-		if (accounts.length !== 0) {
-			const account = accounts[0];
-			console.log("Found an authorized account:", account);
-			setCurrentAccount(account);
-		} else {
-			console.log("No authorized account found");
-		}
+		// if (accounts.length !== 0) {
+		// 	const account = accounts[0];
+		// 	console.log("Found an authorized account:", account);
+		// 	setCurrentAccount(account);
+		// } else {
+		// 	console.log("No authorized account found");
+		// }
+
+		const web3auth = new Web3Auth({
+			uiConfig: {
+				appName: "W3A", // <-- Your dApp Name
+				appLogo: "https://web3auth.io/images/w3a-L-Favicon-1.svg", // Your dApp Logo URL
+				theme: "light", // "light" | "dark" | "auto"
+				loginMethodsOrder: ["apple", "google", "twitter"],
+				defaultLanguage: "ja", // en, de, ja, ko, zh, es, fr, pt, nl
+				loginGridCol: 3, // 2 | 3
+				primaryButton: "externalLogin", // "externalLogin" | "socialLogin" | "emailLogin"
+			},
+			clientId: "BJGFBlJG9JpTya-vbj6sVow_k40-EHuvHLzUlxchVGkNTAcWgCnsehzbd2uNmwayP0palt3nMhzdOFHtCqH_wFE", // Get your Client ID from Web3Auth Dashboard
+			chainConfig: {
+				chainNamespace: "eip155",
+				chainId: "0x5", // Please use 0x5 for Goerli Testnet
+			},
+		});
+
+		console.log(web3auth);
+		await web3auth.initModal();
 	};
 
 	const connectWallet = async () => {
 		try {
-			const { ethereum } = window as any;
-			if (!ethereum) {
-				alert("Get MetaMask!");
-				return;
-			}
-			const accounts = await ethereum.request({
-				method: "eth_requestAccounts",
-			});
-			console.log("Connected", accounts[0]);
-			setCurrentAccount(accounts[0]);
+			// const { ethereum } = window as any;
+			// if (!ethereum) {
+			// 	alert("Get MetaMask!");
+			// 	return;
+			// }
+			// const accounts = await ethereum.request({
+			// 	method: "eth_requestAccounts",
+			// });
+			// console.log("Connected", accounts[0]);
+			// setCurrentAccount(accounts[0]);
+
+			await web3auth.connect();
 		} catch (error) {
 			console.log(error);
 		}
+	};
+
+	const getUserInfo = async () => {
+		if (!web3auth) {
+			console.log("web3auth not initialized yet");
+			return;
+		}
+		const user = await web3auth.getUserInfo();
+		console.log(user);
+	};
+
+	const logout = async () => {
+		if (!web3auth) {
+			console.log("web3auth not initialized yet");
+			return;
+		}
+		await web3auth.logout();
+		setProvider(null);
 	};
 
 	const renderNotConnectedContainer = () => (
