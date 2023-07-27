@@ -10,8 +10,11 @@ import abi from "utils/VotePortal.json";
 import Image from "next/image";
 import Link from "next/link";
 
+import { Web3Auth } from "@web3auth/modal";
+
 const Ideas: NextPage = () => {
 	const [currentAccount, setCurrentAccount] = React.useState("");
+	const [web3auth, setWeb3auth] = React.useState<Web3Auth | null>(null);
 
 	// アイデアのリスト NFTになっていないバージョンすべて
 	const [ideas, setIdeas] = React.useState([]);
@@ -22,52 +25,72 @@ const Ideas: NextPage = () => {
 
 	// コピペ
 	const checkIfWalletIsConnected = async () => {
-		const { ethereum } = window as any;
-		if (!ethereum) {
-			console.log("Make sure you have MetaMask!");
-			return;
-		} else {
-			console.log("We have the ethereum object", ethereum);
-		}
+		try {
+			const web3auth = new Web3Auth({
+				uiConfig: {
+					appName: "W3A", // <-- Your dApp Name
+					appLogo: "https://web3auth.io/images/w3a-L-Favicon-1.svg", // Your dApp Logo URL
+					theme: "light", // "light" | "dark" | "auto"
+					loginMethodsOrder: ["apple", "google", "twitter"],
+					defaultLanguage: "ja", // en, de, ja, ko, zh, es, fr, pt, nl
+					loginGridCol: 3, // 2 | 3
+					primaryButton: "externalLogin", // "externalLogin" | "socialLogin" | "emailLogin"
+				},
+				clientId: "BJGFBlJG9JpTya-vbj6sVow_k40-EHuvHLzUlxchVGkNTAcWgCnsehzbd2uNmwayP0palt3nMhzdOFHtCqH_wFE", // Get your Client ID from Web3Auth Dashboard
+				chainConfig: {
+					chainNamespace: "eip155",
+					chainId: "0x5", // Please use 0x5 for Goerli Testnet
+				},
+			});
+			setWeb3auth(web3auth);
 
-		const accounts = await ethereum.request({ method: "eth_accounts" });
+			await web3auth.initModal();
 
-		if (accounts.length !== 0) {
-			const account = accounts[0];
-			console.log("Found an authorized account:", account);
-			setCurrentAccount(account);
-		} else {
-			console.log("No authorized account found");
+			connectWallet();
+		} catch (error) {
+			console.error(error);
 		}
 	};
 	const connectWallet = async () => {
+		console.log("hello");
 		try {
-			const { ethereum } = window as any;
-			if (!ethereum) {
-				alert("Get MetaMask!");
+			if (!web3auth) {
+				console.log("web3auth not initialized yet");
 				return;
 			}
-			const accounts = await ethereum.request({
-				method: "eth_requestAccounts",
-			});
-			console.log("Connected", accounts[0]);
-			setCurrentAccount(accounts[0]);
+			console.log("test");
+
+			const web3authProvider = await web3auth.connect();
+			console.log("auth", web3authProvider);
+			setCurrentAccount(web3authProvider);
+
+			await getAllIdeas();
+
+			console.log("done");
 		} catch (error) {
 			console.log(error);
 		}
 	};
+
+	const getUserInfo = async () => {
+		if (!web3auth) {
+			console.log("web3auth not initialized yet");
+			return;
+		}
+		const user = await web3auth.getUserInfo();
+		console.log(user);
+	};
 	React.useEffect(() => {
 		checkIfWalletIsConnected();
-		getAllIdeas();
 	}, []);
 
 	// 特定のアイデアにVoteする関数
 	const voteIdea = async (index: any, isGood: boolean) => {
 		try {
-			const { ethereum } = window as any;
+			// const { ethereum } = window as any;
 			console.log("index", index);
-			if (ethereum) {
-				const provider = new ethers.providers.Web3Provider(ethereum);
+			if (currentAccount) {
+				const provider = new ethers.providers.Web3Provider(currentAccount);
 				const signer = provider.getSigner();
 				const voteContract = new ethers.Contract(contractAddress, contractABI, signer);
 
@@ -86,22 +109,29 @@ const Ideas: NextPage = () => {
 
 	// すべてのアイデアを取得する関数
 	const getAllIdeas = async () => {
+		console.log(currentAccount);
 		try {
-			const { ethereum } = window as any;
-
-			if (ethereum) {
-				const provider = new ethers.providers.Web3Provider(ethereum);
+			if (currentAccount) {
+				const provider = new ethers.providers.Web3Provider(currentAccount);
 				const signer = provider.getSigner();
 				const voteContract = new ethers.Contract(contractAddress, contractABI, signer);
 
 				const ideas = await voteContract.getAllIdeas();
 				console.log(ideas);
 				setIdeas(ideas);
+
+				
 			}
 		} catch (error) {
 			console.log(error);
 		}
 	};
+
+	const renderNotConnectedContainer = () => (
+		<button onClick={connectWallet} className="cta-button connect-wallet-button">
+			Connect to Wallet
+		</button>
+	);
 
 	return (
 		<div>
@@ -113,93 +143,96 @@ const Ideas: NextPage = () => {
 			<Header />
 			<main className={classes.main}>
 				<h1>アイデア一覧</h1>
-
-				<div className={classes.ideas}>
-					{ideas.map((idea: any, index: any) => {
-						return (
-							<div key={index}>
-								<div className={classes.l_wrapper_06}>
-									<div className={classes.card_06}>
-										<Link
-											href={
-												"https://" +
-												idea.ideaURL +
-												".ipfs.w3s.link/" +
-												idea.nameOriginal +
-												".pdf"
-											}
-										>
-											<Image
-												className={classes.card_img_06}
-												src={`https://firebasestorage.googleapis.com/v0/b/vote-dapp-60851.appspot.com/o/${idea.nameOriginal}.jpeg?alt=media`}
-												width={500}
-												height={200}
-												objectFit="cover"
-												alt=""
-											/>
-										</Link>
-										<div className={classes.card_content_06}>
-											<p className={classes.card_title_06}>{idea.name}</p>
-											<p className={classes.card_text_06}>
-												賛成数 : {idea.goodVotes.toNumber()}
-												反対数 : {idea.badVotes.toNumber()}
-											</p>
-										</div>
-										{idea.isFinished ? (
-											idea.isNFT ? (
-												<div className={classes.card_link_06}>
-													<Link
-														href={
-															"https://testnets.opensea.io/assets/goerli/" +
-															contractAddress +
-															"/" +
-															idea.index
-														}
-													>
-														<button className={classes.card_link_btn_06}>
-															NFTをOpenseaで見る
-														</button>
-													</Link>
-												</div>
+				{currentAccount === "" ? (
+					renderNotConnectedContainer()
+				) : (
+					<div className={classes.ideas}>
+						{ideas.map((idea: any, index: any) => {
+							return (
+								<div key={index}>
+									<div className={classes.l_wrapper_06}>
+										<div className={classes.card_06}>
+											<Link
+												href={
+													"https://" +
+													idea.ideaURL +
+													".ipfs.w3s.link/" +
+													idea.nameOriginal +
+													".pdf"
+												}
+											>
+												<Image
+													className={classes.card_img_06}
+													src={`https://firebasestorage.googleapis.com/v0/b/vote-dapp-60851.appspot.com/o/${idea.nameOriginal}.jpeg?alt=media`}
+													width={500}
+													height={200}
+													objectFit="cover"
+													alt=""
+												/>
+											</Link>
+											<div className={classes.card_content_06}>
+												<p className={classes.card_title_06}>{idea.name}</p>
+												<p className={classes.card_text_06}>
+													賛成数 : {idea.goodVotes.toNumber()}
+													反対数 : {idea.badVotes.toNumber()}
+												</p>
+											</div>
+											{idea.isFinished ? (
+												idea.isNFT ? (
+													<div className={classes.card_link_06}>
+														<Link
+															href={
+																"https://testnets.opensea.io/assets/goerli/" +
+																contractAddress +
+																"/" +
+																idea.index
+															}
+														>
+															<button className={classes.card_link_btn_06}>
+																NFTをOpenseaで見る
+															</button>
+														</Link>
+													</div>
+												) : (
+													<div className={classes.card_link_06}>
+														<Link
+															href={
+																"https://" +
+																idea.ideaURL +
+																".ipfs.w3s.link/" +
+																idea.nameOriginal +
+																".pdf"
+															}
+														>
+															<button className={classes.card_link_btn_06}>
+																差し戻しになりました
+															</button>
+														</Link>
+													</div>
+												)
 											) : (
 												<div className={classes.card_link_06}>
-													<Link
-														href={
-															"https://" +
-															idea.ideaURL +
-															".ipfs.w3s.link/" +
-															idea.nameOriginal +
-															".pdf"
-														}
+													<button
+														className={classes.card_link_btn_06}
+														onClick={() => voteIdea(index, true)}
 													>
-														<button className={classes.card_link_btn_06}>
-															差し戻しになりました
-														</button>
-													</Link>
+														賛成
+													</button>
+													<button
+														className={classes.card_link_btn_06}
+														onClick={() => voteIdea(index, false)}
+													>
+														反対
+													</button>
 												</div>
-											)
-										) : (
-											<div className={classes.card_link_06}>
-												<button
-													className={classes.card_link_btn_06}
-													onClick={() => voteIdea(index, true)}
-												>
-													賛成
-												</button>
-												<button
-													className={classes.card_link_btn_06}
-													onClick={() => voteIdea(index, false)}
-												>
-													反対
-												</button>
-											</div>
-										)}
+											)}
+										</div>
 									</div>
 								</div>
-							</div>
-						);
-					})}
-				</div>
+							);
+						})}
+					</div>
+				)}
 			</main>
 		</div>
 	);

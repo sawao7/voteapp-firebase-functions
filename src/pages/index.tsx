@@ -43,6 +43,8 @@ const Home: NextPage = () => {
 	//Initialize within your constructor
 
 	const [currentAccount, setCurrentAccount] = React.useState("");
+	const [web3auth, setWeb3auth] = useState<Web3Auth | null>(null);
+	console.log("current", currentAccount);
 
 	// モーダル
 	const [modalOpenComfirm, setModalOpenComfirm] = React.useState(false);
@@ -68,59 +70,48 @@ const Home: NextPage = () => {
 	const API_KEY: any = process.env.NEXT_PUBLIC_PRIVATE_WEBSTORAGE_KEY;
 
 	const checkIfWalletIsConnected = async () => {
-		const { ethereum } = window as any;
-		if (!ethereum) {
-			console.log("Make sure you have MetaMask!");
-			return;
-		} else {
-			console.log("We have the ethereum object", ethereum);
+		try {
+			const web3auth = new Web3Auth({
+				uiConfig: {
+					appName: "W3A", // <-- Your dApp Name
+					appLogo: "https://web3auth.io/images/w3a-L-Favicon-1.svg", // Your dApp Logo URL
+					theme: "light", // "light" | "dark" | "auto"
+					loginMethodsOrder: ["apple", "google", "twitter"],
+					defaultLanguage: "ja", // en, de, ja, ko, zh, es, fr, pt, nl
+					loginGridCol: 3, // 2 | 3
+					primaryButton: "externalLogin", // "externalLogin" | "socialLogin" | "emailLogin"
+				},
+				clientId: "BJGFBlJG9JpTya-vbj6sVow_k40-EHuvHLzUlxchVGkNTAcWgCnsehzbd2uNmwayP0palt3nMhzdOFHtCqH_wFE", // Get your Client ID from Web3Auth Dashboard
+				chainConfig: {
+					chainNamespace: "eip155",
+					// rpcTarget: "https://rpc.ankr.com/eth_goerli",
+					// rpcTarget: "https://eth-goerli.g.alchemy.com/v2/l6HvZ4wkSqFBVANW0EKTjFxXZ1ZEuJEu",
+					chainId: "0x5", // Please use 0x5 for Goerli Testnet
+					displayName: "Goerli Testnet",
+				},
+			});
+			setWeb3auth(web3auth);
+
+			await web3auth.initModal();
+		} catch (error) {
+			console.error(error);
 		}
-
-		// const accounts = await ethereum.request({ method: "eth_accounts" });
-
-		// if (accounts.length !== 0) {
-		// 	const account = accounts[0];
-		// 	console.log("Found an authorized account:", account);
-		// 	setCurrentAccount(account);
-		// } else {
-		// 	console.log("No authorized account found");
-		// }
-
-		const web3auth = new Web3Auth({
-			uiConfig: {
-				appName: "W3A", // <-- Your dApp Name
-				appLogo: "https://web3auth.io/images/w3a-L-Favicon-1.svg", // Your dApp Logo URL
-				theme: "light", // "light" | "dark" | "auto"
-				loginMethodsOrder: ["apple", "google", "twitter"],
-				defaultLanguage: "ja", // en, de, ja, ko, zh, es, fr, pt, nl
-				loginGridCol: 3, // 2 | 3
-				primaryButton: "externalLogin", // "externalLogin" | "socialLogin" | "emailLogin"
-			},
-			clientId: "BJGFBlJG9JpTya-vbj6sVow_k40-EHuvHLzUlxchVGkNTAcWgCnsehzbd2uNmwayP0palt3nMhzdOFHtCqH_wFE", // Get your Client ID from Web3Auth Dashboard
-			chainConfig: {
-				chainNamespace: "eip155",
-				chainId: "0x5", // Please use 0x5 for Goerli Testnet
-			},
-		});
-
-		console.log(web3auth);
-		await web3auth.initModal();
 	};
 
 	const connectWallet = async () => {
+		console.log("hello");
 		try {
-			// const { ethereum } = window as any;
-			// if (!ethereum) {
-			// 	alert("Get MetaMask!");
-			// 	return;
-			// }
-			// const accounts = await ethereum.request({
-			// 	method: "eth_requestAccounts",
-			// });
-			// console.log("Connected", accounts[0]);
-			// setCurrentAccount(accounts[0]);
+			if (!web3auth) {
+				console.log("web3auth not initialized yet");
+				return;
+			}
+			console.log("test");
 
-			await web3auth.connect();
+			const web3authProvider = await web3auth.connect();
+			console.log("auth", web3authProvider);
+			setCurrentAccount(web3authProvider);
+
+			getUserInfo();
 		} catch (error) {
 			console.log(error);
 		}
@@ -141,7 +132,7 @@ const Home: NextPage = () => {
 			return;
 		}
 		await web3auth.logout();
-		setProvider(null);
+		setCurrentAccount(null);
 	};
 
 	const renderNotConnectedContainer = () => (
@@ -208,6 +199,8 @@ const Home: NextPage = () => {
 		console.log("rootCid", rootCid);
 		console.log("hello");
 
+		
+
 		setModalOpenComfirm((frag) => !frag);
 
 		const name_original = name.replace(".pdf", "");
@@ -217,10 +210,14 @@ const Home: NextPage = () => {
 	// Cidをアイデアに変える関数
 	const CidToIdea = async (file_cid: any, name_original: any) => {
 		try {
-			const { ethereum } = window as any;
-			if (ethereum) {
-				const provider = new ethers.providers.Web3Provider(ethereum);
+			// const { ethereum } = window as any;
+			if (currentAccount) {
+				// ethereumに、web3authのproviderを入れる
+				console.log(currentAccount);
+				getUserInfo();
+				const provider = new ethers.providers.Web3Provider(currentAccount);
 				const signer = provider.getSigner();
+				console.log(signer.getAddress());
 				const voteContract = new ethers.Contract(contractAddress, contractABI, signer);
 
 				// (アイデア名) => ideaName;
